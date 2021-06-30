@@ -60,8 +60,12 @@ def stations():
 @app.route("/api/v1.0/tobs")
 def active():
     session = Session(engine)
+    previousyr_date = dt.date(2017,8,23)-dt.timedelta(days=365)
+      
+    # Perform a query to retrieve the data and precipitation scores
+    
     active_station = session.query(Measurement.station).group_by(Measurement.station).order_by(func.count(Measurement.prcp).desc()).first()
-    active_station_data = dict(session.query(Measurement.date, Measurement.tobs).filter(Measurement.station==active_station[0]).all())
+    active_station_data = dict(session.query(Measurement.date, Measurement.tobs).filter(Measurement.station==active_station[0]).filter(Measurement.date>=previousyr_date).all())
     session.close()
     return(jsonify(active_station_data))
 
